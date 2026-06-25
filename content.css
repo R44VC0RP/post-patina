@@ -9,20 +9,23 @@ time.xpa-time-emphasis,
   font-weight: 650 !important;
 }
 
-[data-testid="cellInnerDiv"].xpa-thread-gradient::before {
-  background: linear-gradient(
+article[data-testid="tweet"].xpa-color-transition {
+  background-color: var(--xpa-gradient-to) !important;
+  background-image: linear-gradient(
     to bottom,
-    var(--xpa-gradient-from),
-    var(--xpa-gradient-to)
-  );
-  content: "";
-  height: 18px;
-  left: 0;
-  pointer-events: none;
-  position: absolute;
-  right: 0;
-  top: -9px;
-  z-index: 3;
+    var(--xpa-gradient-from) 0,
+    var(--xpa-gradient-to) 20px,
+    var(--xpa-gradient-to) 100%
+  ) !important;
+  border-top-color: transparent !important;
+}
+
+.xpa-color-transition-out {
+  border-bottom-color: var(--xpa-divider-color) !important;
+}
+
+.xpa-color-transition-in {
+  border-top-color: var(--xpa-divider-color) !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -32,7 +35,7 @@ time.xpa-time-emphasis,
 }
 
 @media (forced-colors: active) {
-  [data-testid="cellInnerDiv"].xpa-thread-gradient::before {
-    display: none;
+  article[data-testid="tweet"].xpa-color-transition {
+    background-image: none !important;
   }
 }
