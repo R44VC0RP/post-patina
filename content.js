@@ -6,6 +6,7 @@
     sanitizeSettings,
     classifyTimestamp,
     rgbaFromHex,
+    solidTintFromHex,
     formatAge
   } = globalThis.XPostAge;
 
@@ -13,6 +14,8 @@
   const HIGHLIGHT_CLASS = "xpa-highlighted";
   const TIME_CLASS = "xpa-time-emphasis";
   const AGE_LABEL_CLASS = "xpa-age-label";
+  const GRADIENT_CLASS = "xpa-thread-gradient";
+  const CELL_SELECTOR = '[data-testid="cellInnerDiv"]';
   const RESCAN_INTERVAL_MS = 60_000;
   const MUTATION_DEBOUNCE_MS = 60;
 
@@ -59,11 +62,38 @@
     );
   }
 
+  function parseOpaqueRgb(color) {
+    const match = color.match(
+      /^rgba?\(\s*([\d.]+)[, ]+\s*([\d.]+)[, ]+\s*([\d.]+)(?:\s*[,/]\s*([\d.]+))?\s*\)$/i
+    );
+
+    if (!match || (match[4] !== undefined && Number(match[4]) < 1)) {
+      return null;
+    }
+
+    return match.slice(1, 4).map(Number);
+  }
+
+  function findBaseBackground(post) {
+    let element = post.parentElement;
+
+    while (element) {
+      const rgb = parseOpaqueRgb(window.getComputedStyle(element).backgroundColor);
+      if (rgb) {
+        return rgb;
+      }
+      element = element.parentElement;
+    }
+
+    return [0, 0, 0];
+  }
+
   function clearPost(post) {
     post.classList.remove(HIGHLIGHT_CLASS);
     post.removeAttribute("data-xpa-age-band");
     post.removeAttribute("data-xpa-timestamp");
     post.style.removeProperty("--xpa-background-color");
+    post.style.removeProperty("--xpa-solid-background-color");
     post.style.removeProperty("--xpa-band-color");
     [...post.querySelectorAll(`time.${TIME_CLASS}`)]
       .filter((time) => belongsToPost(time, post))
@@ -112,6 +142,7 @@
     }
 
     const tintAlpha = settings.tintStrength / 100;
+    const baseBackground = findBaseBackground(post);
 
     post.classList.add(HIGHLIGHT_CLASS);
     post.setAttribute("data-xpa-age-band", classification.key);
@@ -120,14 +151,76 @@
       "--xpa-background-color",
       rgbaFromHex(classification.color, tintAlpha)
     );
+    post.style.setProperty(
+      "--xpa-solid-background-color",
+      solidTintFromHex(classification.color, baseBackground, tintAlpha)
+    );
     post.style.setProperty("--xpa-band-color", classification.color);
     updateTimeLabel(post, time, classification);
+  }
+
+  function clearThreadGradients() {
+    document.querySelectorAll(`.${GRADIENT_CLASS}`).forEach((cell) => {
+      cell.classList.remove(GRADIENT_CLASS);
+      cell.removeAttribute("data-xpa-gradient");
+      cell.style.removeProperty("--xpa-gradient-from");
+      cell.style.removeProperty("--xpa-gradient-to");
+    });
+  }
+
+  function applyThreadGradients(posts) {
+    clearThreadGradients();
+
+    if (!settings.enabled || !/\/status\/\d+/.test(window.location.pathname)) {
+      return;
+    }
+
+    for (let index = 1; index < posts.length; index += 1) {
+      const previousPost = posts[index - 1];
+      const currentPost = posts[index];
+      const previousBand = previousPost.getAttribute("data-xpa-age-band");
+      const currentBand = currentPost.getAttribute("data-xpa-age-band");
+
+      if (!previousBand || !currentBand || previousBand === currentBand) {
+        continue;
+      }
+
+      const previousCell = previousPost.closest(CELL_SELECTOR);
+      const currentCell = currentPost.closest(CELL_SELECTOR);
+
+      if (
+        !previousCell ||
+        !currentCell ||
+        previousCell.parentElement !== currentCell.parentElement ||
+        previousCell.nextElementSibling !== currentCell
+      ) {
+        continue;
+      }
+
+      const fromColor = previousPost.style.getPropertyValue(
+        "--xpa-solid-background-color"
+      );
+      const toColor = currentPost.style.getPropertyValue(
+        "--xpa-solid-background-color"
+      );
+
+      if (!fromColor || !toColor) {
+        continue;
+      }
+
+      currentCell.classList.add(GRADIENT_CLASS);
+      currentCell.setAttribute("data-xpa-gradient", `${previousBand}-to-${currentBand}`);
+      currentCell.style.setProperty("--xpa-gradient-from", fromColor);
+      currentCell.style.setProperty("--xpa-gradient-to", toColor);
+    }
   }
 
   function scanPosts() {
     scanTimer = null;
     const nowMs = Date.now();
-    document.querySelectorAll(POST_SELECTOR).forEach((post) => updatePost(post, nowMs));
+    const posts = [...document.querySelectorAll(POST_SELECTOR)];
+    posts.forEach((post) => updatePost(post, nowMs));
+    applyThreadGradients(posts);
   }
 
   function scheduleScan() {

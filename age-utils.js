@@ -126,6 +126,32 @@
     return `rgba(${red}, ${green}, ${blue}, ${safeAlpha})`;
   }
 
+  function solidTintFromHex(hex, backgroundRgb, alpha) {
+    if (
+      typeof hex !== "string" ||
+      !HEX_COLOR_PATTERN.test(hex) ||
+      !Array.isArray(backgroundRgb) ||
+      backgroundRgb.length !== 3 ||
+      !backgroundRgb.every((channel) => Number.isFinite(Number(channel)))
+    ) {
+      return null;
+    }
+
+    const value = hex.slice(1);
+    const foreground = [
+      Number.parseInt(value.slice(0, 2), 16),
+      Number.parseInt(value.slice(2, 4), 16),
+      Number.parseInt(value.slice(4, 6), 16)
+    ];
+    const safeAlpha = Math.min(1, Math.max(0, Number(alpha) || 0));
+    const mixed = foreground.map((channel, index) => {
+      const background = Math.min(255, Math.max(0, Number(backgroundRgb[index])));
+      return Math.round(channel * safeAlpha + background * (1 - safeAlpha));
+    });
+
+    return `rgb(${mixed[0]}, ${mixed[1]}, ${mixed[2]})`;
+  }
+
   function formatAge(ageHours) {
     const safeAge = Math.max(0, Number(ageHours) || 0);
     const minutes = Math.floor(safeAge * 60);
@@ -177,6 +203,7 @@
     getBandIndex,
     classifyTimestamp,
     rgbaFromHex,
+    solidTintFromHex,
     formatAge,
     describeBandRange
   });

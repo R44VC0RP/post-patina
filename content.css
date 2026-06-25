@@ -9,8 +9,30 @@ time.xpa-time-emphasis,
   font-weight: 650 !important;
 }
 
+[data-testid="cellInnerDiv"].xpa-thread-gradient::before {
+  background: linear-gradient(
+    to bottom,
+    var(--xpa-gradient-from),
+    var(--xpa-gradient-to)
+  );
+  content: "";
+  height: 18px;
+  left: 0;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  top: -9px;
+  z-index: 3;
+}
+
 @media (prefers-reduced-motion: reduce) {
   article[data-testid="tweet"].xpa-highlighted {
     transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  [data-testid="cellInnerDiv"].xpa-thread-gradient::before {
+    display: none;
   }
 }

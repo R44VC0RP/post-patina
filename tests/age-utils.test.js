@@ -8,6 +8,7 @@ const {
   getBandIndex,
   classifyTimestamp,
   rgbaFromHex,
+  solidTintFromHex,
   formatAge,
   describeBandRange
 } = require("../age-utils.js");
@@ -46,6 +47,8 @@ test("clamps display strength and rejects malformed setting arrays", () => {
 test("formats colors, ages, and range labels", () => {
   assert.equal(rgbaFromHex("#f97316", 0.22), "rgba(249, 115, 22, 0.22)");
   assert.equal(rgbaFromHex("not-a-color", 0.2), null);
+  assert.equal(solidTintFromHex("#f97316", [0, 0, 0], 0.22), "rgb(55, 25, 5)");
+  assert.equal(solidTintFromHex("#22c55e", [255, 255, 255], 0.22), "rgb(206, 242, 220)");
   assert.equal(formatAge(20.5), "20 hours");
   assert.equal(formatAge(72), "3 days");
   assert.equal(describeBandRange(3, [1, 6, 12, 24]), "12–24h");
