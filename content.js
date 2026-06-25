@@ -17,6 +17,8 @@
   const GRADIENT_CLASS = "xpa-color-transition";
   const GRADIENT_IN_CLASS = "xpa-color-transition-in";
   const GRADIENT_OUT_CLASS = "xpa-color-transition-out";
+  const SEAM_IN_CLASS = "xpa-color-seam-in";
+  const SEAM_OUT_CLASS = "xpa-color-seam-out";
   const CELL_SELECTOR = '[data-testid="cellInnerDiv"]';
   const TIMELINE_SELECTOR = '[aria-label^="Timeline:"]';
   const RESCAN_INTERVAL_MS = 60_000;
@@ -171,10 +173,20 @@
     });
 
     document
-      .querySelectorAll(`.${GRADIENT_IN_CLASS}, .${GRADIENT_OUT_CLASS}`)
+      .querySelectorAll(
+        `.${GRADIENT_IN_CLASS}, .${GRADIENT_OUT_CLASS}, ` +
+          `.${SEAM_IN_CLASS}, .${SEAM_OUT_CLASS}`
+      )
       .forEach((element) => {
-        element.classList.remove(GRADIENT_IN_CLASS, GRADIENT_OUT_CLASS);
+        element.classList.remove(
+          GRADIENT_IN_CLASS,
+          GRADIENT_OUT_CLASS,
+          SEAM_IN_CLASS,
+          SEAM_OUT_CLASS
+        );
         element.style.removeProperty("--xpa-divider-color");
+        element.style.removeProperty("--xpa-gradient-in-mid");
+        element.style.removeProperty("--xpa-gradient-out-mid");
       });
   }
 
@@ -233,34 +245,56 @@
   }
 
   function markTransitionBoundary(previousPost, currentPost, fromColor) {
-    markBoundaryElement(previousPost, GRADIENT_OUT_CLASS, fromColor);
-    markBoundaryElement(currentPost, GRADIENT_IN_CLASS, fromColor);
+    markBoundaryElement(previousPost, SEAM_OUT_CLASS, fromColor);
+    markBoundaryElement(currentPost, SEAM_IN_CLASS, fromColor);
     markBoundaryElement(
       findBorderOwner(previousPost, "bottom"),
-      GRADIENT_OUT_CLASS,
+      SEAM_OUT_CLASS,
       fromColor
     );
     markBoundaryElement(
       findBorderOwner(currentPost, "top"),
-      GRADIENT_IN_CLASS,
+      SEAM_IN_CLASS,
       fromColor
     );
 
     const previousCell = previousPost.closest(CELL_SELECTOR);
     const currentCell = currentPost.closest(CELL_SELECTOR);
 
-    markBoundaryElement(previousCell, GRADIENT_OUT_CLASS, fromColor);
-    markBoundaryElement(currentCell, GRADIENT_IN_CLASS, fromColor);
+    markBoundaryElement(previousCell, SEAM_OUT_CLASS, fromColor);
+    markBoundaryElement(currentCell, SEAM_IN_CLASS, fromColor);
   }
 
-  function setTransitionColors(currentPost, previousBand, currentBand, from, to) {
+  function mixSolidColors(from, to) {
+    const fromRgb = parseOpaqueRgb(from);
+    const toRgb = parseOpaqueRgb(to);
+
+    if (!fromRgb || !toRgb) {
+      return null;
+    }
+
+    const midpoint = fromRgb.map((channel, index) =>
+      Math.round((channel + toRgb[index]) / 2)
+    );
+    return `rgb(${midpoint[0]}, ${midpoint[1]}, ${midpoint[2]})`;
+  }
+
+  function setTransitionColors(
+    previousPost,
+    currentPost,
+    previousBand,
+    currentBand,
+    midpoint
+  ) {
     currentPost.classList.add(GRADIENT_CLASS);
+    previousPost.classList.add(GRADIENT_OUT_CLASS);
+    currentPost.classList.add(GRADIENT_IN_CLASS);
     currentPost.setAttribute(
       "data-xpa-gradient",
       `${previousBand}-to-${currentBand}`
     );
-    currentPost.style.setProperty("--xpa-gradient-from", from);
-    currentPost.style.setProperty("--xpa-gradient-to", to);
+    previousPost.style.setProperty("--xpa-gradient-out-mid", midpoint);
+    currentPost.style.setProperty("--xpa-gradient-in-mid", midpoint);
   }
 
   function hasInterveningTimelineCell(previousPost, currentPost) {
@@ -303,20 +337,27 @@
 
   function applyTransition(previousPost, currentPost, previousBand, currentBand) {
     const { from, to } = transitionColors(previousPost, currentPost);
+    const midpoint = mixSolidColors(from, to);
 
-    if (!from || !to) {
+    if (!from || !to || !midpoint) {
       return;
     }
 
-    markTransitionBoundary(previousPost, currentPost, from);
-    setTransitionColors(currentPost, previousBand, currentBand, from, to);
+    markTransitionBoundary(previousPost, currentPost, midpoint);
+    setTransitionColors(
+      previousPost,
+      currentPost,
+      previousBand,
+      currentBand,
+      midpoint
+    );
   }
 
   function shouldTransition(previousPost, currentPost) {
     const previousBand = previousPost.getAttribute("data-xpa-age-band");
     const currentBand = currentPost.getAttribute("data-xpa-age-band");
 
-    if (!previousBand || !currentBand || previousBand === currentBand) {
+    if (!previousBand || !currentBand) {
       return null;
     }
 
@@ -331,6 +372,16 @@
     const bands = shouldTransition(previousPost, currentPost);
 
     if (!bands) {
+      return;
+    }
+
+    if (bands.previousBand === bands.currentBand) {
+      const color = previousPost.style.getPropertyValue(
+        "--xpa-solid-background-color"
+      );
+      if (color) {
+        markTransitionBoundary(previousPost, currentPost, color);
+      }
       return;
     }
 

@@ -31,7 +31,7 @@ That’s it—there is no build step. Click the PostPatina toolbar icon to custo
 - Reads the exact timestamp already included in each X post.
 - Keeps up with infinite scrolling and X’s recycled timeline elements.
 - Rechecks every minute so open posts age into the correct band.
-- Blends between age colors at reply-thread boundaries instead of leaving a hard divider.
+- Smoothly blends between different reply ages and removes dividers when adjacent replies share a color.
 - Handles timelines, post pages, quoted posts, and reply threads.
 - Leaves promoted cards without timestamps alone.
 

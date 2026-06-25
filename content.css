@@ -9,22 +9,47 @@ time.xpa-time-emphasis,
   font-weight: 650 !important;
 }
 
-article[data-testid="tweet"].xpa-color-transition {
-  background-color: var(--xpa-gradient-to) !important;
+article[data-testid="tweet"].xpa-color-transition-in {
+  background-color: var(--xpa-solid-background-color) !important;
   background-image: linear-gradient(
     to bottom,
-    var(--xpa-gradient-from) 0,
-    var(--xpa-gradient-to) 20px,
-    var(--xpa-gradient-to) 100%
+    var(--xpa-gradient-in-mid) 0,
+    var(--xpa-solid-background-color) 32px,
+    transparent 32px
   ) !important;
-  border-top-color: transparent !important;
 }
 
-.xpa-color-transition-out {
+article[data-testid="tweet"].xpa-color-transition-out {
+  background-color: var(--xpa-solid-background-color) !important;
+  background-image: linear-gradient(
+    to top,
+    var(--xpa-gradient-out-mid) 0,
+    var(--xpa-solid-background-color) 32px,
+    transparent 32px
+  ) !important;
+}
+
+article[data-testid="tweet"].xpa-color-transition-in.xpa-color-transition-out {
+  background-image:
+    linear-gradient(
+      to bottom,
+      var(--xpa-gradient-in-mid) 0,
+      var(--xpa-solid-background-color) 32px,
+      transparent 32px
+    ),
+    linear-gradient(
+      to top,
+      var(--xpa-gradient-out-mid) 0,
+      var(--xpa-solid-background-color) 32px,
+      transparent 32px
+    ) !important;
+}
+
+.xpa-color-seam-out {
   border-bottom-color: var(--xpa-divider-color) !important;
 }
 
-.xpa-color-transition-in {
+.xpa-color-seam-in {
   border-top-color: var(--xpa-divider-color) !important;
 }
 
@@ -35,7 +60,8 @@ article[data-testid="tweet"].xpa-color-transition {
 }
 
 @media (forced-colors: active) {
-  article[data-testid="tweet"].xpa-color-transition {
+  article[data-testid="tweet"].xpa-color-transition-in,
+  article[data-testid="tweet"].xpa-color-transition-out {
     background-image: none !important;
   }
 }
