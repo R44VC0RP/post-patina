@@ -1,0 +1,16 @@
+article[data-testid="tweet"].xpa-highlighted {
+  background-color: var(--xpa-background-color) !important;
+  transition: background-color 160ms ease;
+}
+
+time.xpa-time-emphasis,
+.xpa-age-label {
+  color: var(--xpa-band-color) !important;
+  font-weight: 650 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  article[data-testid="tweet"].xpa-highlighted {
+    transition: none;
+  }
+}

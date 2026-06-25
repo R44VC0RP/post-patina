@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>PostPatina browser fixture</title>
+    <link rel="stylesheet" href="../content.css" />
+    <style>
+      body { background: #000; color: #e7e9ea; font-family: sans-serif; margin: 24px auto; width: 600px; }
+      article { border: 1px solid #2f3336; min-height: 72px; padding: 16px; }
+      a { color: #71767b; }
+    </style>
+    <script>
+      globalThis.chrome = {
+        runtime: { lastError: null },
+        storage: {
+          sync: { get(defaults, callback) { callback(defaults); } },
+          onChanged: { addListener() {} }
+        }
+      };
+    </script>
+  </head>
+  <body>
+    <article data-testid="tweet" data-case="fresh">
+      <a href="/person/status/1"><time data-age-hours="0.3">18m</time></a>
+    </article>
+    <article data-testid="tweet" data-case="aging">
+      <a href="/person/status/2"><time data-age-hours="7">7h</time></a>
+    </article>
+    <article data-testid="tweet" data-case="old">
+      <a href="/person/status/3"><time data-age-hours="20">20h</time></a>
+    </article>
+    <article data-testid="tweet" data-case="stale">
+      <a href="/person/status/4"><time data-age-hours="192">Jun 17</time></a>
+    </article>
+    <article data-testid="tweet" data-case="dynamic"></article>
+    <article data-testid="tweet" data-case="no-timestamp">Promoted</article>
+
+    <script>
+      document.querySelectorAll("time[data-age-hours]").forEach((time) => {
+        const ageMs = Number(time.dataset.ageHours) * 3_600_000;
+        time.dateTime = new Date(Date.now() - ageMs).toISOString();
+      });
+    </script>
+    <script src="../age-utils.js"></script>
+    <script src="../content.js"></script>
+    <script>
+      window.setTimeout(() => {
+        const post = document.querySelector('[data-case="dynamic"]');
+        const link = document.createElement("a");
+        const time = document.createElement("time");
+        link.href = "/person/status/5";
+        time.dateTime = new Date(Date.now() - 13 * 3_600_000).toISOString();
+        time.textContent = "13h";
+        link.append(time);
+        post.append(link);
+      }, 25);
+    </script>
+  </body>
+</html>

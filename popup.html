@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PostPatina</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="panel">
+      <header class="hero">
+        <div class="logo" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </div>
+        <div>
+          <h1>PostPatina</h1>
+          <p>See how old the news really is.</p>
+        </div>
+      </header>
+
+      <section class="card master-control">
+        <div>
+          <h2>Color posts by age</h2>
+          <p>Runs on X and Twitter timelines.</p>
+        </div>
+        <label class="switch" aria-label="Enable age colors">
+          <input id="enabled" type="checkbox" />
+          <span class="switch-track"></span>
+        </label>
+      </section>
+
+      <section class="section" aria-labelledby="bands-title">
+        <div class="section-heading">
+          <h2 id="bands-title">Age bands</h2>
+          <span class="section-hint">Click a color to change it</span>
+        </div>
+        <div id="band-list" class="band-list"></div>
+      </section>
+
+      <section class="card controls" aria-labelledby="display-title">
+        <h2 id="display-title">Display</h2>
+        <label class="slider-row" for="tint-strength">
+          <span>Background strength</span>
+          <output id="tint-output" for="tint-strength">22%</output>
+        </label>
+        <input id="tint-strength" type="range" min="8" max="40" step="1" />
+      </section>
+
+      <details class="card cutoffs">
+        <summary>Customize age cutoffs</summary>
+        <p>Each cutoff must be higher than the one before it.</p>
+        <div id="threshold-list" class="threshold-list"></div>
+        <div id="threshold-error" class="error" role="alert" aria-live="polite"></div>
+      </details>
+
+      <footer>
+        <button id="reset" class="reset-button" type="button">Reset defaults</button>
+        <span id="save-status" role="status" aria-live="polite"></span>
+      </footer>
+    </main>
+
+    <script src="age-utils.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>
