@@ -20,6 +20,7 @@
   const DEFAULT_SETTINGS = Object.freeze({
     enabled: true,
     tintStrength: 22,
+    bandShadow: false,
     thresholdsHours: Object.freeze([1, 6, 12, 24]),
     colors: Object.freeze([
       "#22c55e",
@@ -36,6 +37,7 @@
     return {
       enabled: DEFAULT_SETTINGS.enabled,
       tintStrength: DEFAULT_SETTINGS.tintStrength,
+      bandShadow: DEFAULT_SETTINGS.bandShadow,
       thresholdsHours: [...DEFAULT_SETTINGS.thresholdsHours],
       colors: [...DEFAULT_SETTINGS.colors]
     };
@@ -72,6 +74,8 @@
       tintStrength: Number.isFinite(strength)
         ? Math.min(40, Math.max(8, Math.round(strength)))
         : defaults.tintStrength,
+      bandShadow:
+        typeof source.bandShadow === "boolean" ? source.bandShadow : defaults.bandShadow,
       thresholdsHours,
       colors
     };

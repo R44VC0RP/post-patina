@@ -34,12 +34,15 @@ test("clamps display strength and rejects malformed setting arrays", () => {
   const settings = sanitizeSettings({
     enabled: false,
     tintStrength: 99,
+    bandShadow: "yes",
     thresholdsHours: [12, 6, 1, 24],
     colors: ["#ABCDEF", "bad", "#010203", "#040506", "#070809"]
   });
 
   assert.equal(settings.enabled, false);
   assert.equal(settings.tintStrength, 40);
+  assert.equal(settings.bandShadow, false);
+  assert.equal(sanitizeSettings({ bandShadow: true }).bandShadow, true);
   assert.deepEqual(settings.thresholdsHours, [1, 6, 12, 24]);
   assert.deepEqual(settings.colors, ["#abcdef", "#06b6d4", "#010203", "#040506", "#070809"]);
 });

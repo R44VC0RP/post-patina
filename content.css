@@ -1,6 +1,11 @@
 article[data-testid="tweet"].xpa-highlighted {
   background-color: var(--xpa-background-color) !important;
-  transition: background-color 160ms ease;
+  transition: background-color 160ms ease, box-shadow 160ms ease;
+}
+
+article[data-testid="tweet"].xpa-highlighted.xpa-shadowed {
+  background-color: transparent !important;
+  box-shadow: inset 0 0 0 1px var(--xpa-band-color), inset 0 0 16px -2px var(--xpa-band-color) !important;
 }
 
 time.xpa-time-emphasis,

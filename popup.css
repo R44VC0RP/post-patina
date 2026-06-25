@@ -254,6 +254,14 @@ input[type="range"] {
   width: 100%;
 }
 
+.toggle-row {
+  align-items: center;
+  display: flex;
+  font-size: 12px;
+  justify-content: space-between;
+  margin-top: 14px;
+}
+
 .cutoffs {
   margin-top: 12px;
   padding: 0 14px;
