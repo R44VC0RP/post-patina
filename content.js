@@ -316,6 +316,70 @@
     return sibling !== currentCell;
   }
 
+  function hasVisibleBackground(color) {
+    if (!color || color === "transparent") {
+      return false;
+    }
+
+    const alphaMatch = color.match(
+      /^rgba\([^,]+,[^,]+,[^,]+,\s*([\d.]+)\s*\)$/i
+    );
+    return !alphaMatch || Number(alphaMatch[1]) > 0;
+  }
+
+  function hasReplyConnector(post) {
+    const avatar = post.querySelector('[data-testid="Tweet-User-Avatar"]');
+
+    if (!avatar) {
+      return false;
+    }
+
+    const avatarRect = avatar.getBoundingClientRect();
+    const postRect = post.getBoundingClientRect();
+
+    if (avatarRect.width === 0 || avatarRect.height === 0 || postRect.height === 0) {
+      return false;
+    }
+
+    const avatarCenter = avatarRect.left + avatarRect.width / 2;
+
+    return [...post.querySelectorAll("div")].some((element) => {
+      if (avatar.contains(element)) {
+        return false;
+      }
+
+      const rect = element.getBoundingClientRect();
+      if (
+        rect.width < 1 ||
+        rect.width > 5 ||
+        rect.height < 16 ||
+        Math.abs(rect.left + rect.width / 2 - avatarCenter) > 6 ||
+        rect.top < avatarRect.bottom - 6 ||
+        rect.bottom < postRect.bottom - 40
+      ) {
+        return false;
+      }
+
+      const computed = window.getComputedStyle(element);
+      return (
+        hasVisibleBackground(computed.backgroundColor) ||
+        Number.parseFloat(computed.borderLeftWidth) > 0 ||
+        Number.parseFloat(computed.borderRightWidth) > 0
+      );
+    });
+  }
+
+  function isReplyPair(previousPost, currentPost) {
+    const previousCell = previousPost.closest(CELL_SELECTOR);
+    const currentCell = currentPost.closest(CELL_SELECTOR);
+
+    if (previousCell && previousCell === currentCell) {
+      return true;
+    }
+
+    return hasReplyConnector(previousPost);
+  }
+
   function isTransitionPair(previousPost, currentPost) {
     if (!shareTimeline(previousPost, currentPost)) {
       return false;
@@ -325,7 +389,7 @@
       return false;
     }
 
-    return true;
+    return isReplyPair(previousPost, currentPost);
   }
 
   function transitionColors(previousPost, currentPost) {

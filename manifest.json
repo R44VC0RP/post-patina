@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "PostPatina",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "Tints posts on X by age so yesterday's breaking news looks its age.",
   "permissions": ["storage"],
   "icons": {
