@@ -12,6 +12,7 @@
 
   const POST_SELECTOR = 'article[data-testid="tweet"]';
   const HIGHLIGHT_CLASS = "xpa-highlighted";
+  const SHADOW_CLASS = "xpa-shadowed";
   const TIME_CLASS = "xpa-time-emphasis";
   const AGE_LABEL_CLASS = "xpa-age-label";
   const GRADIENT_CLASS = "xpa-color-transition";
@@ -95,6 +96,7 @@
 
   function clearPost(post) {
     post.classList.remove(HIGHLIGHT_CLASS);
+    post.classList.remove(SHADOW_CLASS);
     post.removeAttribute("data-xpa-age-band");
     post.removeAttribute("data-xpa-timestamp");
     post.style.removeProperty("--xpa-background-color");
@@ -150,6 +152,7 @@
     const baseBackground = findBaseBackground(post);
 
     post.classList.add(HIGHLIGHT_CLASS);
+    post.classList.toggle(SHADOW_CLASS, settings.bandShadow);
     post.setAttribute("data-xpa-age-band", classification.key);
     post.setAttribute("data-xpa-timestamp", timestamp);
     post.style.setProperty(

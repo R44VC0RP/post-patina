@@ -13,6 +13,7 @@
   const enabledInput = document.querySelector("#enabled");
   const tintInput = document.querySelector("#tint-strength");
   const tintOutput = document.querySelector("#tint-output");
+  const bandShadowInput = document.querySelector("#band-shadow");
   const bandList = document.querySelector("#band-list");
   const thresholdList = document.querySelector("#threshold-list");
   const thresholdError = document.querySelector("#threshold-error");
@@ -65,6 +66,7 @@
     enabledInput.checked = settings.enabled;
     tintInput.value = String(settings.tintStrength);
     tintOutput.value = `${settings.tintStrength}%`;
+    bandShadowInput.checked = settings.bandShadow;
 
     document.querySelectorAll("[data-color-index]").forEach((input) => {
       const index = Number(input.dataset.colorIndex);
@@ -119,6 +121,10 @@
 
   tintInput.addEventListener("change", () => {
     persist({ ...settings, tintStrength: Number(tintInput.value) });
+  });
+
+  bandShadowInput.addEventListener("change", () => {
+    persist({ ...settings, bandShadow: bandShadowInput.checked });
   });
 
   bandList.addEventListener("input", (event) => {
